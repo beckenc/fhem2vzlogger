@@ -1,0 +1,70 @@
+#!/usr/bin/expect
+# just do a chmod 755 one the script
+# ./YOUR_SCRIPT_NAME.sh $YOUHOST $PORT
+# if you get "Escape character is '^]'" as the output it means got connected otherwise it has failed
+#
+# http://inguza.com/document/expect-and-tcl-mini-reference-manual
+#
+
+set ip [lindex $argv 0]
+set port [lindex $argv 1]
+set timeout 1
+
+# define the readings of interest.
+set readings(vaillant.heizkreise) { bad.valve flur.valve kind1.valve kind2.valve kueche.valve schlafzimmer.valve studio.valve wc.valve wohnzimmer.valve}
+set readings(dht.aussen) {temperature humidity humidity.abs}
+set readings(dht.lunos) {temperature humidity humidity.abs}
+set readings(dht.k1) {temperature humidity humidity.abs}
+set readings(dht.k3) {temperature humidity humidity.abs}
+#set readings(dht.wz) {temperature humidity humidity.abs}
+#set readings(dht.bad) {temperature humidity humidity.abs}
+#set readings(dht.sz) {temperature humidity humidity.abs}
+#set readings(dht.studio) {temperature humidity humidity.abs}
+#set readings(s7.metering.floor_heating_return) {state}
+#set readings(s7.metering.heatpump_flow) {state}
+#set readings(s7.metering.heatpump_return) {state}
+#set readings(s7.metering.water_buffer) {state}
+#set readings(s7.metering.water_circulation) {state}
+#set readings(s7.metering.water_flow) {state}
+
+# disable log to stdout
+log_user 0
+
+# wait for connection
+spawn telnet $ip $port
+expect {
+  "'^]'." { }
+  default { exit 1 }
+}
+
+foreach device [array names readings] {
+   foreach reading $readings($device) {
+   # identifier
+      set identifier $device.$reading
+   # catch timestamp
+      set cmd "{time_str2num(ReadingsTimestamp(\"$device\",\"$reading\",\"\"))}\r"
+      send $cmd
+      expect {
+         $cmd                            { exp_continue }
+         -re {[0-9]{10,}}                { set ts $expect_out(0,string) }
+      }
+   # catch reading value
+      set cmd "{ReadingsVal(\"$device\",\"$reading\",\"\")}\r"
+      send $cmd
+      expect {
+         $cmd                            { exp_continue }
+         -re {[+-]?[0-9]*\.?[0-9]+}      { set val $expect_out(0,string); }
+      }
+      if { [info exists ts] && [info exists val] } {
+         # echo $i $t $v
+         # i.e. Garden.temperature 1376398997 18.3
+         puts "$identifier $ts $val"
+         unset ts val
+      }
+   }
+}
+
+# exit telnet gracefully
+send "exit\n"
+expect eof
+
