@@ -11,6 +11,7 @@ set port [lindex $argv 1]
 set timeout 1
 
 # define the readings of interest.
+# set reading(DEVICE) { reading1 reading2 reading3 }
 set readings(vaillant.heizkreise) { bad.valve flur.valve kind1.valve kind2.valve kueche.valve schlafzimmer.valve studio.valve wc.valve wohnzimmer.valve}
 set readings(dht.aussen) {temperature humidity humidity.abs}
 set readings(dht.lunos) {temperature humidity humidity.abs}
