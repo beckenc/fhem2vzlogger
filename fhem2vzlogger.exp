@@ -6,30 +6,17 @@
 # http://inguza.com/document/expect-and-tcl-mini-reference-manual
 #
 
-set ip [lindex $argv 0]
-set port [lindex $argv 1]
-set timeout 1
-
-# define the readings of interest.
-# set reading(DEVICE) { reading1 reading2 reading3 }
-set readings(vaillant.heizkreise) { bad.valve flur.valve kind1.valve kind2.valve kueche.valve schlafzimmer.valve studio.valve wc.valve wohnzimmer.valve}
-set readings(dht.aussen) {temperature humidity humidity.abs}
-set readings(dht.lunos) {temperature humidity humidity.abs}
-set readings(dht.k1) {temperature humidity humidity.abs}
-set readings(dht.k3) {temperature humidity humidity.abs}
-#set readings(dht.wz) {temperature humidity humidity.abs}
-#set readings(dht.bad) {temperature humidity humidity.abs}
-#set readings(dht.sz) {temperature humidity humidity.abs}
-#set readings(dht.studio) {temperature humidity humidity.abs}
-#set readings(s7.metering.floor_heating_return) {state}
-#set readings(s7.metering.heatpump_flow) {state}
-#set readings(s7.metering.heatpump_return) {state}
-#set readings(s7.metering.water_buffer) {state}
-#set readings(s7.metering.water_circulation) {state}
-#set readings(s7.metering.water_flow) {state}
+set readinginc [lindex $argv 0]
+set ip [lindex $argv 1]
+set port [lindex $argv 2]
 
 # disable log to stdout
 log_user 0
+
+# define the readings of interest.
+source $readinginc
+
+set timeout 1
 
 # wait for connection
 spawn telnet $ip $port
@@ -68,4 +55,3 @@ foreach device [array names readings] {
 # exit telnet gracefully
 send "exit\n"
 expect eof
-
