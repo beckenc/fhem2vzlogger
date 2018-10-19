@@ -18,7 +18,7 @@ log_user 0
 # define the readings of interest.
 source $readinginc
 
-set timeout 1
+set timeout 10
 
 # wait for connection
 spawn telnet $ip $port
