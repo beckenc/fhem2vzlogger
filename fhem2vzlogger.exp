@@ -12,6 +12,8 @@ set port [lindex $argv 2]
 
 # disable log to stdout
 log_user 0
+#log_file -a logs/fhem2vzloggerusr
+#exp_internal -f logs/fhem2vzloggerint 0
 
 # define the readings of interest.
 source $readinginc
@@ -34,21 +36,26 @@ foreach device [array names readings] {
       send $cmd
       expect {
          $cmd                            { exp_continue }
-         -re {[0-9]{10,}}                { set ts $expect_out(0,string) }
+         -re {[0-9]{10}\s+}              { set ts [string trim $expect_out(0,string) ] }
+         timeout                         { set ts 1645496542 }
+         default                         { set ts 1645496541 }
       }
    # catch reading value
       set cmd "{ReadingsVal(\"$device\",\"$reading\",\"\")}\r"
       send $cmd
       expect {
          $cmd                            { exp_continue }
-         -re {[+-]?[0-9]*\.?[0-9]+}      { set val $expect_out(0,string); }
+         -re {[+-]?([0-9]+\.)?[0-9]+\s+} { set val [string trim $expect_out(0,string) ] }
+         timeout                         { set val 4242 }
+         default                         { set val 4343 }
       }
       if { [info exists ts] && [info exists val] } {
          # echo $i $t $v
          # i.e. Garden.temperature 1376398997 18.3
          puts "$identifier $ts $val"
-         unset ts val
       }
+      if { [info exists ts] }            { unset ts }
+      if { [info exists val] }           { unset val }
    }
 }
 

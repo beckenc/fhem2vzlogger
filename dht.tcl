@@ -1,5 +1,5 @@
 #!/usr/bin/expect
-# set reading(DEVICE) { reading1 reading2 reading3 }
+# set readings(DEVICE) { reading1 reading2 reading3 }
 set readings(dht.aussen) {temperature humidity humidity.abs}
 set readings(dht.lunos) {temperature humidity humidity.abs}
 set readings(dht.k1) {temperature humidity humidity.abs}
