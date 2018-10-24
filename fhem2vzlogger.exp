@@ -16,6 +16,11 @@ log_user 0
 #exp_internal -f logs/fhem2vzloggerint 0
 #exp_internal 1
 
+if {[llength $argv] == 0} {
+  send_user "Usage: scriptname \'readings.tcl'\ \'fhem-ip\' \'fhem-port\'\n"
+  exit 1
+}
+
 # define the readings of interest.
 source $readinginc
 
@@ -25,6 +30,7 @@ set timeout 10
 spawn telnet $ip $port
 expect {
   "'^]'." { }
+  timeout { exit 1 }
   default { exit 1 }
 }
 
@@ -36,27 +42,27 @@ foreach device [array names readings] {
       set cmd "{time_str2num(ReadingsTimestamp(\"$device\",\"$reading\",\"\"))}\r"
       send $cmd
       expect {
-         $cmd                            { exp_continue }
-         -re {[0-9]{10}\s+}              { set ts [string trim $expect_out(0,string) ] }
-         timeout                         { exit 1 }
-         default                         { exit 1 }
+         $cmd                                { exp_continue }
+         -re {[0-9]{10}(?=\s+)}              { set ts $expect_out(0,string) }
+         timeout                             { exit 1 }
+         default                             { exit 1 }
       }
    # catch reading value
       set cmd "{ReadingsVal(\"$device\",\"$reading\",\"\")}\r"
       send $cmd
       expect {
-         $cmd                            { exp_continue }
-         -re {[+-]?([0-9]+\.)?[0-9]+\s+} { set val [string trim $expect_out(0,string) ] }
-         timeout                         { exit 1 }
-         default                         { exit 1 }
+         $cmd                                { exp_continue }
+         -re {[+-]?([0-9]+\.)?[0-9]+(?=\s+)} { set val $expect_out(0,string) }
+         timeout                             { exit 1 }
+         default                             { exit 1 }
       }
       if { [info exists ts] && [info exists val] } {
          # echo $i $t $v
          # i.e. Garden.temperature 1376398997 18.3
          puts "$identifier $ts $val"
       }
-      if { [info exists ts] }            { unset ts }
-      if { [info exists val] }           { unset val }
+      if { [info exists ts] }                { unset ts }
+      if { [info exists val] }               { unset val }
    }
 }
 
