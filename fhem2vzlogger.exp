@@ -14,6 +14,7 @@ set port [lindex $argv 2]
 log_user 0
 #log_file -a logs/fhem2vzloggerusr
 #exp_internal -f logs/fhem2vzloggerint 0
+#exp_internal 1
 
 # define the readings of interest.
 source $readinginc
@@ -37,8 +38,8 @@ foreach device [array names readings] {
       expect {
          $cmd                            { exp_continue }
          -re {[0-9]{10}\s+}              { set ts [string trim $expect_out(0,string) ] }
-         timeout                         { set ts 1645496542 }
-         default                         { set ts 1645496541 }
+         timeout                         { exit 1 }
+         default                         { exit 1 }
       }
    # catch reading value
       set cmd "{ReadingsVal(\"$device\",\"$reading\",\"\")}\r"
@@ -46,8 +47,8 @@ foreach device [array names readings] {
       expect {
          $cmd                            { exp_continue }
          -re {[+-]?([0-9]+\.)?[0-9]+\s+} { set val [string trim $expect_out(0,string) ] }
-         timeout                         { set val 4242 }
-         default                         { set val 4343 }
+         timeout                         { exit 1 }
+         default                         { exit 1 }
       }
       if { [info exists ts] && [info exists val] } {
          # echo $i $t $v
