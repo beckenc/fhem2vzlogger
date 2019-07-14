@@ -39,6 +39,8 @@ expect {
 
 foreach device [array names readings] {
    foreach reading $readings($device) {
+   # settle down telenet load a bit (sleep 100ms)  
+      sleep 0.2
    # identifier
       set identifier $device.$reading
    # catch timestamp
