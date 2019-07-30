@@ -9,4 +9,4 @@ set readings(MQTT2_espeasy_dht_sz) {temperature humidity}
 set readings(MQTT2_espeasy_dht_studio) {temperature humidity}
 set readings(dts_aussen_t1) {temperature}
 set readings(dts_aussen_t2) {temperature}
-set readings(dts_aussen_t1_t2_t3_t4) {Tsun Tshadow Tdiff_smooth}
+set readings(dts_aussen_t1_t2_t3_t4) {T_sun T_shadow T_diff_smooth}
