@@ -7,6 +7,7 @@
 #
 
 set readinginc [lindex $argv 0]
+set stamp ".stamp"
 set ip [lindex $argv 1]
 set port [lindex $argv 2]
 set delay [lindex $argv 3]
@@ -16,18 +17,28 @@ log_user 0
 #log_file -a logs/fhem2vzloggerusr
 #exp_internal -f logs/fhem2vzloggerint 0
 #exp_internal 1
+set timeout 10
 
 if {[llength $argv] == 0} {
   send_user "Usage: scriptname \'readings.tcl'\ \'fhem-ip\' \'fhem-port\' \'delay\'\n"
   exit 1
 }
 
-# define the readings of interest.
-source $readinginc
-
-set timeout 10
-
-sleep $delay
+# create stamp file
+set fp [open $readinginc$stamp a+]
+close $fp
+# read timestamp from the file
+set fp [open $readinginc$stamp r]
+set told [read $fp]
+close $fp
+# eval last reading
+set tnow [clock seconds]
+if {[string length $told] == 0} { set told 0 }
+if {[expr $tnow - $delay] <= $told} { return }
+#update timestamp and start reading
+set fp [open $readinginc$stamp w]
+puts $fp $tnow
+close $fp
 
 # wait for connection
 spawn telnet $ip $port
@@ -37,10 +48,13 @@ expect {
   default { exit 1 }
 }
 
+# define the readings of interest.
+source $readinginc
+
 foreach device [array names readings] {
    foreach reading $readings($device) {
-   # settle down telenet load a bit (sleep 100ms)
-      sleep 0.2
+   # settle down telenet load a bit (sleep 50ms)
+      sleep 0.05
    # identifier
       set identifier $device.$reading
    # catch timestamp
