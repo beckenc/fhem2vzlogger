@@ -32,7 +32,7 @@ sleep $delay
 # wait for connection
 spawn telnet $ip $port
 expect {
-  "'^]'." { }
+  "$ip" { }
   timeout { exit 1 }
   default { exit 1 }
 }
