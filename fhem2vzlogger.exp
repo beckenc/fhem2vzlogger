@@ -33,16 +33,8 @@ set told [read $fp]
 close $fp
 # eval last reading
 set tnow [clock seconds]
-if {[string length $told] == 0} {
-  set fp [open $readinginc$stamp w]
-  puts $fp $tnow
-  close $fp
-  return
-}
-if {[expr $tnow - $delay] <= $told} {
-  sleep 2
-  return
-}
+if {[string length $told] == 0} { set told 0 }
+if {[expr $tnow - $delay] <= $told} { return }
 #update timestamp and start reading
 set fp [open $readinginc$stamp w]
 puts $fp $tnow
