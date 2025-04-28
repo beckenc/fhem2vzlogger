@@ -1,6 +1,6 @@
 #!/usr/bin/expect
 # set readings(DEVICE) { reading1 reading2 reading3 }
-set readings(MQTT2_espeasy_dht_aussen) {temperature_1 temperature_2 humidity pressure statPressureTendency1h statPressureTendency3h}
+set readings(MQTT2_espeasy_dht_aussen) {temperature humidity pressure statPressureTendency1h statPressureTendency3h}
 set readings(MQTT2_espeasy_dht_k1) {temperature humidity}
 set readings(MQTT2_espeasy_dht_k3) {temperature humidity}
 set readings(MQTT2_espeasy_dht_wz) {temperature humidity}
